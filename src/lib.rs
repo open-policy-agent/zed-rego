@@ -28,7 +28,7 @@ impl Rego {
         );
 
         let release = zed::latest_github_release(
-            "StyraInc/regal",
+            "open-policy-agent/regal",
             zed::GithubReleaseOptions {
                 require_assets: true,
                 pre_release: false,

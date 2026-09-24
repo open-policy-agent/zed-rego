@@ -2,9 +2,9 @@ id = "rego"
 name = "Rego"
 version = "0.0.2"
 schema_version = 1
-authors = ["Styra Community <devrel@styra.com>"]
+authors = ["The OPA Community"]
 description = "Zed extension for the Rego policy language"
-repository = "https://github.com/StyraInc/zed-rego"
+repository = "https://github.com/open-policy-agent/zed-rego"
 
 [grammars.rego]
 repository = "https://github.com/FallenAngel97/tree-sitter-rego"

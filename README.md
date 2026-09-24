@@ -1,6 +1,6 @@
 # Zed Rego Extension
 
-[![Build Status](https://github.com/styrainc/zed-rego/workflows/Build/badge.svg)](https://github.com/styrainc/zed-rego/actions)
+[![Build Status](https://github.com/open-policy-agent/zed-rego/workflows/Build/badge.svg)](https://github.com/open-policy-agent/zed-rego/actions)
 
 Zed extension for the Rego policy language from [Open Policy Agent](https://github.com/open-policy-agent/opa/) (OPA).
 
@@ -16,7 +16,7 @@ features.
 ### Rego Syntax Support
 
 Basic features like syntax highlighting and indentation works out of the box. More advanced features are provided
-by [Regal](https://github.com/styrainc/regal).
+by [Regal](https://www.openpolicyagent.org/projects/regal).
 
 ### Regal Language Server Support
 
@@ -35,21 +35,22 @@ functionality. The following features of the language server are currently suppo
 - [ ] Code lenses (click to evaluate package or rule) - not yet supported by Zed
 
 To learn more about each language server feature provided, see the
-Regal [language server](https://docs.styra.com/regal/language-server) documentation.
+Regal [language server](https://www.openpolicyagent.org/projects/regal/language-server) documentation.
 
 ## Installation
 
 This extension is available in the Zed extension marketplace, and you'll find it by searching for "rego" in the
 extensions view.
 
-Since the extension makes use of [Regal](https://github.com/styrainc/regal) for language server features, the extension
-will automatically try to download the latest version of Regal to use, unless the `regal` binary is found on `$PATH`.
+Since the extension makes use of [Regal](https://www.openpolicyagent.org/projects/regal) for language
+server features, the extension will automatically try to download the latest version of Regal to
+use, unless the `regal` binary is found on `$PATH`.
 
 If you want to have updates of Regal managed automatically, you can use Homebrew to install the `regal` binary instead
 (MacOS & Linux):
 
 ```shell
-brew install styrainc/packages/regal
+brew install regal
 ```
 
 ## Tasks
@@ -101,9 +102,9 @@ See the docs on [contributing](docs/CONTRIBUTING.md) if you're interested in hac
 ## Credits
 
 - Tree-sitter grammar provided by the [tree-sitter-rego](https://github.com/FallenAngel97/tree-sitter-rego) project
-- Language server for Rego provided by [Regal](https://github.com/StyraInc/regal)
+- Language server for Rego provided by [Regal](https://www.openpolicyagent.org/projects/regal)
 
 ## Community
 
-For questions, discussions and announcements related to Styra products, services and open source projects, please join
-the Styra community on [Slack](https://inviter.co/styra)!
+For questions, discussions and announcements related to OPA, please join the OPA community on
+[Slack](https://slack.openpolicyagent.org)!
