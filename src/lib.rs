@@ -1,15 +1,20 @@
+mod dap;
+
 use std::fs;
 
-use zed_extension_api::{self as zed, Result};
+use zed_extension_api::{
+    self as zed, serde_json, DebugAdapterBinary, DebugConfig, DebugScenario, DebugTaskDefinition,
+    Result, StartDebuggingRequestArgumentsRequest,
+};
 
 struct Rego {
     cached_binary_path: Option<String>,
 }
 
 impl Rego {
-    fn language_server_binary(
+    fn regal_binary(
         &mut self,
-        language_server_id: &zed::LanguageServerId,
+        language_server_id: Option<&zed::LanguageServerId>,
         worktree: &zed::Worktree,
     ) -> Result<String>  {
         if let Some(path) = worktree.which("regal") {
@@ -22,10 +27,13 @@ impl Rego {
             }
         }
 
-        zed::set_language_server_installation_status(
-            language_server_id,
-            &zed::LanguageServerInstallationStatus::CheckingForUpdate,
-        );
+        let set_status = |status: zed::LanguageServerInstallationStatus| {
+            if let Some(id) = language_server_id {
+                zed::set_language_server_installation_status(id, &status);
+            }
+        };
+
+        set_status(zed::LanguageServerInstallationStatus::CheckingForUpdate);
 
         let release = zed::latest_github_release(
             "open-policy-agent/regal",
@@ -60,16 +68,13 @@ impl Rego {
         let binary_path = format!("{version_dir}/{asset_name}");
 
         if !fs::metadata(&binary_path).is_ok_and(|stat| stat.is_file()) {
-            zed::set_language_server_installation_status(
-                language_server_id,
-                &zed::LanguageServerInstallationStatus::Downloading,
-            );
-    
+            set_status(zed::LanguageServerInstallationStatus::Downloading);
+
             let asset = release
             .assets
             .iter()
             .find(|asset| asset.name == asset_name)
-            .ok_or_else(|| format!("no asset found matching {:?}", asset_name))?;
+            .ok_or_else(|| format!("no asset found matching {asset_name:?}"))?;
 
             zed::download_file(
                 &asset.download_url,
@@ -108,10 +113,37 @@ impl zed::Extension for Rego {
         worktree: &zed::Worktree,
     ) -> Result<zed::Command> {
         Ok(zed::Command {
-            command: self.language_server_binary(language_server_id, worktree)?,
+            command: self.regal_binary(Some(language_server_id), worktree)?,
             args: vec!["language-server".to_string()],
             env: Default::default(),
         })
+    }
+
+    fn get_dap_binary(
+        &mut self,
+        adapter_name: String,
+        config: DebugTaskDefinition,
+        user_provided_debug_adapter_path: Option<String>,
+        worktree: &zed::Worktree,
+    ) -> Result<DebugAdapterBinary> {
+        let command = match user_provided_debug_adapter_path {
+            Some(path) => path,
+            None => self.regal_binary(None, worktree)?,
+        };
+
+        dap::binary(&adapter_name, config, command, &worktree.root_path())
+    }
+
+    fn dap_request_kind(
+        &mut self,
+        _adapter_name: String,
+        config: serde_json::Value,
+    ) -> Result<StartDebuggingRequestArgumentsRequest> {
+        dap::request_kind(&config)
+    }
+
+    fn dap_config_to_scenario(&mut self, config: DebugConfig) -> Result<DebugScenario> {
+        dap::config_to_scenario(config)
     }
 }
 

@@ -27,15 +27,21 @@ jobs:
           components: clippy
           toolchain: stable
       - run: cargo +stable clippy -- -D warnings
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: stable
+      - run: cargo test
   build_extension:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7  
       - uses: dtolnay/rust-toolchain@master
         with:
-          # This should be changed to wasm32-wasip2 when available
-          # explanation: https://github.com/zed-industries/zed/blob/main/crates/extension/src/extension_builder.rs#L21-L26
-          targets: wasm32-wasip1
+          targets: wasm32-wasip2
           toolchain: stable
-      - run: cargo build --target wasm32-wasip1 --release
+      - run: cargo build --target wasm32-wasip2 --release
   
