@@ -15,13 +15,13 @@ jobs:
   markdownlint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - run: npm install -g markdownlint-cli
       - run: markdownlint --config docs/.markdownlint.yaml --ignore docs/CODE_OF_CONDUCT.md README.md docs/
   clippy_check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: dtolnay/rust-toolchain@master
         with:
           components: clippy
@@ -30,7 +30,7 @@ jobs:
   build_extension:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4  
+      - uses: actions/checkout@v7  
       - uses: dtolnay/rust-toolchain@master
         with:
           # This should be changed to wasm32-wasip2 when available
