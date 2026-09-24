@@ -1,0 +1,76 @@
+{
+  "type": "object",
+  "required": ["request"],
+  "properties": {
+    "request": {
+      "type": "string",
+      "enum": ["launch"],
+      "description": "The Regal debugger only supports launch requests.",
+      "default": "launch"
+    },
+    "command": {
+      "type": "string",
+      "enum": ["eval"],
+      "description": "The OPA command to run.",
+      "default": "eval"
+    },
+    "query": {
+      "type": "string",
+      "description": "The query to evaluate.",
+      "default": "data"
+    },
+    "bundlePaths": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "List of paths to load as bundles for policy and data. Defaults to the worktree root unless dataPaths is set. Set to [] to disable loading of bundles.",
+      "default": ["${ZED_WORKTREE_ROOT}"]
+    },
+    "dataPaths": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "List of paths to load policy and data files from."
+    },
+    "input": {
+      "description": "Input document, provided inline as a JSON value. Takes precedence over inputPath."
+    },
+    "inputPath": {
+      "type": "string",
+      "description": "Path to an input document (JSON or YAML)."
+    },
+    "stopOnEntry": {
+      "type": "boolean",
+      "description": "Automatically stop after launch.",
+      "default": true
+    },
+    "stopOnFail": {
+      "type": "boolean",
+      "description": "Automatically stop on 'Fail' operations.",
+      "default": false
+    },
+    "stopOnResult": {
+      "type": "boolean",
+      "description": "Automatically stop when done.",
+      "default": true
+    },
+    "trace": {
+      "type": "boolean",
+      "description": "Enable logging of the Debug Adapter Protocol.",
+      "default": true
+    },
+    "enablePrint": {
+      "type": "boolean",
+      "description": "Enable print statements.",
+      "default": true
+    },
+    "logLevel": {
+      "type": "string",
+      "enum": ["debug", "info", "warn", "error"],
+      "description": "Log level for messages printed to the debug console. If not set, no log messages are printed."
+    },
+    "ruleIndexing": {
+      "type": "boolean",
+      "description": "Enable rule indexing.",
+      "default": false
+    }
+  }
+}

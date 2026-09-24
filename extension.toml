@@ -13,3 +13,6 @@ commit = "20b5a5958c837bc9f74b231022a68a594a313f6d"
 [language_servers.regal]
 name = "regal"
 language = "rego"
+
+[debug_adapters.Regal]
+schema_path = "debug_adapter_schemas/Regal.json"

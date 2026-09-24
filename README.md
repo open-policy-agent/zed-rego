@@ -89,6 +89,37 @@ use that in your project. Such a task may look something like the example below:
 ]
 ```
 
+## Debugging
+
+This extension provides a `Regal` [debug adapter](https://zed.dev/docs/debugger), using the
+[Regal](https://www.openpolicyagent.org/projects/regal) debugger (`regal debug`) to step through the evaluation of
+Rego policies. Set breakpoints in any Rego file, and start a session from the debug panel or `debugger: start`.
+
+Debug sessions are configured in `.zed/debug.json`. Only the `request` field is required, and the defaults (evaluating
+`data` with the workspace loaded as a bundle) match those of the
+[OPA extension for VS Code](https://marketplace.visualstudio.com/items?itemName=tsandall.opa):
+
+**.zed/debug.json**
+```json
+[
+  {
+    "label": "Debug data.policy.main",
+    "adapter": "Regal",
+    "request": "launch",
+    "query": "data.policy.main",
+    "bundlePaths": ["$ZED_WORKTREE_ROOT"],
+    "inputPath": "$ZED_WORKTREE_ROOT/input.json"
+  }
+]
+```
+
+Other supported options include `dataPaths`, `input`, `stopOnEntry`, `stopOnFail`, `stopOnResult`, `enablePrint`,
+`logLevel` and `ruleIndexing`. Only `eval` launch requests are currently supported by Regal (no `attach`).
+
+Note that evaluating expressions (in the debug console, watch expressions or on hover) is not yet supported, and will
+fail with `no evaluate handler set (DAP not connected to language server?)`. Regal currently only supports this when
+the debugger is started from the language server via code lenses, which Zed does not support.
+
 ## Custom Tasks
 
 See the Zed documentation [tasks](https://zed.dev/docs/tasks) for information about how to easily add your own custom
