@@ -20,11 +20,12 @@ latest commit in the tree-sitter-rego project.
 
 ## Language server features
 
-The language server features in this extension are provided by [Regal](https://github.com/styrainc/regal), and new
+The language server features in this extension are provided by
+[Regal](https://www.openpolicyagent.org/projects/regal), and new
 features and fixes should be submitted to that project directly. See the Regal docs on
-[contributing](https://github.com/StyraInc/regal/blob/main/docs/CONTRIBUTING.md) for how to get started!
+[contributing](https://github.com/open-policy-agent/regal/blob/main/docs/CONTRIBUTING.md) for how to get started!
 
 ## Community
 
 Finally, if you're interested in discussing a feature, bug, or just development in general, please join us in the
-Styra community on [Slack](https://inviter.co/styra)!
+OPA community on [Slack](https://slack.openpolicyagent.org)!

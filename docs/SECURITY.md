@@ -1,13 +1,5 @@
 # Security Policy
 
-## Supported Versions
-
-Only the most recent release of the extension is supported.
-
-Security issues — like any other confirmed bugs — will be addressed as quickly as possible.
-
-## Reporting a Vulnerability
-
-Security issues may be reported either by email to [devrel@styra.com](mailto:devrel@styra.com), or to the admins in the
-[Styra Community Slack](https://inviter.co/styra). You should expect a response within 24
-hours, but most likely much sooner.
+Please refer to the [OPA Security Policy](https://openpolicyagent.org/security)
+for details on how to report security issues, our disclosure policy, and how to
+receive notifications about security issues.
