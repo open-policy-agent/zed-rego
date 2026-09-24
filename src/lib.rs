@@ -16,7 +16,7 @@ impl Rego {
         &mut self,
         language_server_id: Option<&zed::LanguageServerId>,
         worktree: &zed::Worktree,
-    ) -> Result<String>  {
+    ) -> Result<String> {
         if let Some(path) = worktree.which("regal") {
             return Ok(path);
         }
@@ -71,10 +71,10 @@ impl Rego {
             set_status(zed::LanguageServerInstallationStatus::Downloading);
 
             let asset = release
-            .assets
-            .iter()
-            .find(|asset| asset.name == asset_name)
-            .ok_or_else(|| format!("no asset found matching {asset_name:?}"))?;
+                .assets
+                .iter()
+                .find(|asset| asset.name == asset_name)
+                .ok_or_else(|| format!("no asset found matching {asset_name:?}"))?;
 
             zed::download_file(
                 &asset.download_url,
