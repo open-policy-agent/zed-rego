@@ -1,13 +1,11 @@
+mod dap;
+
 use std::fs;
-use std::net::Ipv4Addr;
 
 use zed_extension_api::{
-    self as zed, serde_json, DebugAdapterBinary, DebugConfig, DebugRequest, DebugScenario,
-    DebugTaskDefinition, Result, StartDebuggingRequestArguments,
-    StartDebuggingRequestArgumentsRequest,
+    self as zed, serde_json, DebugAdapterBinary, DebugConfig, DebugScenario, DebugTaskDefinition,
+    Result, StartDebuggingRequestArgumentsRequest,
 };
-
-const DEBUG_ADAPTER_NAME: &str = "Regal";
 
 struct Rego {
     cached_binary_path: Option<String>,
@@ -102,28 +100,6 @@ impl Rego {
     }
 }
 
-/// Fills in the same launch defaults as the OPA VS Code extension, so that a minimal
-/// `{"request": "launch"}` configuration debugs the whole workspace.
-fn with_launch_defaults(
-    mut config: serde_json::Value,
-    worktree: &zed::Worktree,
-) -> Result<serde_json::Value> {
-    let map = config
-        .as_object_mut()
-        .ok_or("Regal debug configuration must be a JSON object")?;
-
-    map.entry("command").or_insert("eval".into());
-    map.entry("query").or_insert("data".into());
-    map.entry("stopOnEntry").or_insert(true.into());
-    map.entry("stopOnResult").or_insert(true.into());
-    map.entry("enablePrint").or_insert(true.into());
-    if !map.contains_key("bundlePaths") && !map.contains_key("dataPaths") {
-        map.insert("bundlePaths".into(), vec![worktree.root_path()].into());
-    }
-
-    Ok(config)
-}
-
 impl zed::Extension for Rego {
     fn new() -> Self {
         Self {
@@ -150,45 +126,12 @@ impl zed::Extension for Rego {
         user_provided_debug_adapter_path: Option<String>,
         worktree: &zed::Worktree,
     ) -> Result<DebugAdapterBinary> {
-        if adapter_name != DEBUG_ADAPTER_NAME {
-            return Err(format!("unknown debug adapter: {adapter_name}"));
-        }
-
-        let configuration: serde_json::Value = serde_json::from_str(&config.config)
-            .map_err(|e| format!("invalid Regal debug configuration: {e}"))?;
-        let request = self.dap_request_kind(adapter_name, configuration.clone())?;
-        let configuration = with_launch_defaults(configuration, worktree)?;
-
         let command = match user_provided_debug_adapter_path {
             Some(path) => path,
             None => self.regal_binary(None, worktree)?,
         };
 
-        let mut arguments = vec!["debug".to_string()];
-        let connection = match config.tcp_connection {
-            Some(template) => {
-                let tcp = zed::resolve_tcp_template(template)?;
-                arguments.extend([
-                    "--server".to_string(),
-                    "--address".to_string(),
-                    format!("{}:{}", Ipv4Addr::from(tcp.host), tcp.port),
-                ]);
-                Some(tcp)
-            }
-            None => None,
-        };
-
-        Ok(DebugAdapterBinary {
-            command: Some(command),
-            arguments,
-            envs: Default::default(),
-            cwd: Some(worktree.root_path()),
-            connection,
-            request_args: StartDebuggingRequestArguments {
-                configuration: configuration.to_string(),
-                request,
-            },
-        })
+        dap::binary(&adapter_name, config, command, &worktree.root_path())
     }
 
     fn dap_request_kind(
@@ -196,37 +139,11 @@ impl zed::Extension for Rego {
         _adapter_name: String,
         config: serde_json::Value,
     ) -> Result<StartDebuggingRequestArgumentsRequest> {
-        match config.get("request").and_then(|r| r.as_str()) {
-            Some("launch") => Ok(StartDebuggingRequestArgumentsRequest::Launch),
-            Some("attach") => Err("the Regal debugger does not support attach requests".into()),
-            Some(other) => Err(format!("unexpected `request` value in Regal debug configuration: {other}")),
-            None => Err("missing `request` field in Regal debug configuration".into()),
-        }
+        dap::request_kind(&config)
     }
 
     fn dap_config_to_scenario(&mut self, config: DebugConfig) -> Result<DebugScenario> {
-        let DebugRequest::Launch(launch) = config.request else {
-            return Err("the Regal debugger does not support attach requests".into());
-        };
-
-        // The "program" entered in the new session modal is treated as the policy (bundle) path to evaluate.
-        let mut scenario = serde_json::json!({
-            "request": "launch",
-            "command": "eval",
-            "query": "data",
-            "bundlePaths": [launch.program],
-        });
-        if let Some(stop_on_entry) = config.stop_on_entry {
-            scenario["stopOnEntry"] = stop_on_entry.into();
-        }
-
-        Ok(DebugScenario {
-            adapter: config.adapter,
-            label: config.label,
-            build: None,
-            config: scenario.to_string(),
-            tcp_connection: None,
-        })
+        dap::config_to_scenario(config)
     }
 }
 
