@@ -46,7 +46,9 @@ pub fn request_kind(config: &serde_json::Value) -> Result<StartDebuggingRequestA
     match config.get("request").and_then(|r| r.as_str()) {
         Some("launch") => Ok(StartDebuggingRequestArgumentsRequest::Launch),
         Some("attach") => Err("the Regal debugger does not support attach requests".into()),
-        Some(other) => Err(format!("unexpected `request` value in Regal debug configuration: {other}")),
+        Some(other) => Err(format!(
+            "unexpected `request` value in Regal debug configuration: {other}"
+        )),
         None => Err("missing `request` field in Regal debug configuration".into()),
     }
 }
@@ -134,13 +136,22 @@ mod tests {
 
     #[test]
     fn minimal_launch_gets_defaults() {
-        let binary = binary(DEBUG_ADAPTER_NAME, task(json!({"request": "launch"})), "regal".into(), ROOT).unwrap();
+        let binary = binary(
+            DEBUG_ADAPTER_NAME,
+            task(json!({"request": "launch"})),
+            "regal".into(),
+            ROOT,
+        )
+        .unwrap();
 
         assert_eq!(binary.command.as_deref(), Some("regal"));
         assert_eq!(binary.arguments, vec!["debug"]);
         assert_eq!(binary.cwd.as_deref(), Some(ROOT));
         assert!(binary.connection.is_none());
-        assert_eq!(binary.request_args.request, StartDebuggingRequestArgumentsRequest::Launch);
+        assert_eq!(
+            binary.request_args.request,
+            StartDebuggingRequestArgumentsRequest::Launch
+        );
         assert_eq!(
             launch_config(&binary),
             json!({
@@ -195,9 +206,14 @@ mod tests {
         assert!(err(json!({"request": "attach"})).contains("does not support attach"));
         assert!(err(json!({"request": "restart"})).contains("unexpected `request` value"));
         assert!(err(json!(["launch"])).contains("missing `request`"));
-        assert!(binary("other", task(json!({"request": "launch"})), "regal".into(), ROOT)
-            .unwrap_err()
-            .contains("unknown debug adapter"));
+        assert!(binary(
+            "other",
+            task(json!({"request": "launch"})),
+            "regal".into(),
+            ROOT
+        )
+        .unwrap_err()
+        .contains("unknown debug adapter"));
     }
 
     #[test]
@@ -209,7 +225,10 @@ mod tests {
         };
 
         assert_eq!(arguments(None), vec!["debug"]);
-        assert_eq!(arguments(Some(&tcp)), vec!["debug", "--server", "--address", "127.0.0.1:4712"]);
+        assert_eq!(
+            arguments(Some(&tcp)),
+            vec!["debug", "--server", "--address", "127.0.0.1:4712"]
+        );
     }
 
     #[test]
