@@ -1,0 +1,27 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    name: Release Zed Extension
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - name: Verify tag matches extension version
+        run: |
+          version=$(sed -n 's/^version = "\(.*\)"$/\1/p' extension.toml)
+          if [ "v${version}" != "${GITHUB_REF_NAME}" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match extension.toml version ${version}"
+            exit 1
+          fi
+      - uses: huacnlee/zed-extension-action@v2
+        with:
+          extension-name: rego
+          push-to: ${{ vars.ZED_EXTENSIONS_FORK }}
+        env:
+          # personal access token with "repo" & "workflow" scopes, able to push to the fork above
+          COMMITTER_TOKEN: ${{ secrets.COMMITTER_TOKEN }}
