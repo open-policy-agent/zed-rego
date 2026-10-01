@@ -1,0 +1,42 @@
+name: Update tree-sitter-rego
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update-grammar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - id: latest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          repository=$(sed -n '/^\[grammars.rego\]/,/^\[/s/^repository = "https:\/\/github.com\/\(.*\)"/\1/p' extension.toml)
+          current=$(sed -n '/^\[grammars.rego\]/,/^\[/s/^commit = "\(.*\)"/\1/p' extension.toml)
+          latest=$(gh api "repos/$repository/commits/HEAD" --jq .sha)
+          echo "repository=$repository" >> "$GITHUB_OUTPUT"
+          echo "current=$current" >> "$GITHUB_OUTPUT"
+          echo "latest=$latest" >> "$GITHUB_OUTPUT"
+      - if: steps.latest.outputs.current != steps.latest.outputs.latest
+        run: sed -i 's/^commit = "${{ steps.latest.outputs.current }}"/commit = "${{ steps.latest.outputs.latest }}"/' extension.toml
+      - if: steps.latest.outputs.current != steps.latest.outputs.latest
+        uses: peter-evans/create-pull-request@v8
+        with:
+          branch: deps/tree-sitter-rego
+          commit-message: "deps: update tree-sitter-rego commit"
+          title: "deps: update tree-sitter-rego commit"
+          body: |
+            Updates the tree-sitter-rego grammar to the latest commit.
+
+            Changes: https://github.com/${{ steps.latest.outputs.repository }}/compare/${{ steps.latest.outputs.current }}...${{ steps.latest.outputs.latest }}
+
+            Check that the queries in `languages/rego/` still match the grammar before merging.
+          signoff: true
+          delete-branch: true

@@ -8,7 +8,7 @@ repository = "https://github.com/open-policy-agent/zed-rego"
 
 [grammars.rego]
 repository = "https://github.com/FallenAngel97/tree-sitter-rego"
-commit = "20b5a5958c837bc9f74b231022a68a594a313f6d"
+commit = "da2a1f63cd877efb05d56de61fe516e90012b9a7"
 
 [language_servers.regal]
 name = "regal"
